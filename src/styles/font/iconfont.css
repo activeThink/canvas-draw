@@ -1,0 +1,48 @@
+@font-face {
+  font-family: "dr-icon";
+  /* Project id 3866807 */
+  src: url('./iconfont.woff2') format('woff2'),
+    url('./iconfont.woff') format('woff'),
+    url('./iconfont.ttf') format('truetype');
+}
+
+[class*='dr-icon'],
+.dr-icon {
+  font-family: "dr-icon" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dr-icon-fuzhiwenzi:before {
+  content: "\e616";
+}
+
+.dr-icon-wenzi:before {
+  content: "\e6ec";
+}
+
+.dr-icon-xingzhuang-juxing:before {
+  content: "\eb97";
+}
+
+.dr-icon-xingzhuang-tuoyuanxing:before {
+  content: "\eb99";
+}
+
+.dr-icon-xingzhuang-sanjiaoxing:before {
+  content: "\eb9a";
+}
+
+.dr-icon-xiangpi:before {
+  content: "\e63d";
+}
+
+.dr-icon-fengexian:before {
+  content: "\ec7f";
+}
+
+.dr-icon-quxian:before {
+  content: "\e636";
+}
