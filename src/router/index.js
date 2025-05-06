@@ -37,9 +37,34 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/',
-    component: () => import('@/views/canvas/index'),
-    hidden: true
+    path: '/system',
+    // You can choose different layout components
+    component: Layout,
+    name:'system',
+    // Here the route is displayed in app-main
+    redirect: '/system/canvas',
+    meta: {
+      title: '系统管理',
+      icon: 'el-icon-s-home'
+    },
+    children: [{
+      path: '/system/canvas',
+      name: 'canvas',
+      meta: {
+        title: '画板',
+        icon: 'el-icon-s-home'
+      },
+      component: () => import('@/views/canvas/index')
+    },
+    {
+      path: '/system/scrollBoard',
+      name: 'scrollBoard',
+      meta: {
+        title: '滚动表格',
+        icon: 'el-icon-s-home'
+      },
+      component: () => import('@/views/scrollBoard/index')
+    }]
   },
   {
     path: '/404',

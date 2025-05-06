@@ -129,7 +129,7 @@ export default {
           this.$store
             .dispatch("user/login", this.loginForm)
             .then(() => {
-              this.$router.push({ path: "/dataStructure/linkList" });
+              this.$router.push({ path: "/system" });
               this.loading = false;
             })
             .catch(() => {
