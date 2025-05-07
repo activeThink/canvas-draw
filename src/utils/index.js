@@ -137,7 +137,7 @@ export function debounce (delay, callback) {
     }, delay)
   }
 }
-
+// 监听dom变化 
 export function observerDomResize (dom, callback) {
   const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
 
@@ -147,7 +147,7 @@ export function observerDomResize (dom, callback) {
 
   return observer
 }
-
+// 计算两个点之间的距离
 export function getPointDistance (pointOne, pointTwo) {
   const minusX = Math.abs(pointOne[0] - pointTwo[0])
 
@@ -164,3 +164,83 @@ export function uuid (hasHyphen) {
   })
 }
 
+
+export function deepMerge(target, source) {
+  if (typeof target !== 'object' || target === null) {
+    return source;
+  }
+
+  if (typeof source !== 'object' || source === null) {
+    return source;
+  }
+
+  const output = Array.isArray(target) ? [...target] : { ...target };
+
+  for (const key of Object.keys(source)) {
+    const sourceValue = source[key];
+    const targetValue = output[key];
+
+    if (Array.isArray(sourceValue)) {
+      output[key] = Array.isArray(targetValue)
+        ? [...targetValue, ...sourceValue]
+        : [...sourceValue];
+    } else if (
+      typeof sourceValue === 'object' &&
+      sourceValue !== null &&
+      typeof targetValue === 'object' &&
+      targetValue !== null &&
+      !Array.isArray(targetValue)
+    ) {
+      output[key] = deepMerge(targetValue, sourceValue);
+    } else {
+      output[key] = sourceValue;
+    }
+  }
+
+  return output;
+}
+
+
+export function deepClone(value, seen = new WeakMap()) {
+
+  // 原始类型直接返回
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  // 处理循环引用
+  if (seen.has(value)) {
+    return seen.get(value);
+  }
+
+  // 处理 Date
+  if (value instanceof Date) {
+    return new Date(value);
+  }
+
+  // 处理 RegExp
+  if (value instanceof RegExp) {
+    return new RegExp(value);
+  }
+
+  // 处理数组
+  if (Array.isArray(value)) {
+    const arrCopy = [];
+    seen.set(value, arrCopy);
+    for (const item of value) {
+      arrCopy.push(deepClone(item, seen));
+    }
+    return arrCopy;
+  }
+
+  // 处理对象
+  const objCopy = {};
+  seen.set(value, objCopy);
+  for (const key in value) {
+    if (value.hasOwnProperty(key)) {
+      objCopy[key] = deepClone(value[key], seen);
+    }
+  }
+
+  return objCopy;
+}

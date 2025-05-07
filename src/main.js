@@ -11,7 +11,7 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
-
+import dataV from '@jiaminghi/data-view'
 import '@/icons' // icon
 import '@/permission' // permission control
 
@@ -33,6 +33,7 @@ Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
 Vue.use(JsonViewer)
+Vue.use(dataV)
 Vue.config.productionTip = false
 
 new Vue({

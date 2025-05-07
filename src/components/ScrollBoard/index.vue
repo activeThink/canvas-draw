@@ -5,7 +5,7 @@
             height: ${mergedConfig.headerHeight}px;
                         line-height: ${mergedConfig.headerHeight}px;
                         width: ${widths[i]}px;
-          `" :align="aligns[i]" v-html="headerItem"></div>
+          `"  v-html="headerItem"></div>
         </div>
 
         <div v-if="mergedConfig" class="rows"
@@ -16,7 +16,7 @@
                         background-color: ${mergedConfig[row.rowIndex % 2 === 0 ? 'evenRowBGC' : 'oddRowBGC']};
           `">
                 <div class="ceil" v-for="(ceil, ci) in row.ceils" :key="`${ceil}${ri}${ci}`"
-                    :style="`width: ${widths[ci]}px;`" :align="aligns[ci]" @click="emitEvent('click', ri, ci, row, ceil)"
+                    :style="`width: ${widths[ci]}px;`" @click="emitEvent('click', ri, ci, row, ceil)"
                     @mouseenter="handleHover(true, ri, ci, row, ceil)" @mouseleave="handleHover(false)">
                     <div class="text" v-if="ceil" v-html="ceil"></div>
                 </div>
@@ -27,11 +27,7 @@
   
 <script>
 import autoResize from '@/mixin/autoResize'
-
-import { deepMerge } from '@jiaminghi/charts/lib/util/index'
-
-import { deepClone } from '@jiaminghi/c-render/lib/plugin/util'
-
+import { deepMerge,deepClone } from '@/utils/index'
 export default {
     name: 'DvScrollBoard',
     mixins: [autoResize],
@@ -133,7 +129,8 @@ export default {
                  * @default hoverPause = true
                  * @example hoverPause = true | false
                  */
-                hoverPause: true
+                hoverPause: true,
+                direction:'up'
             },
 
             mergedConfig: null,
@@ -175,57 +172,43 @@ export default {
     },
     methods: {
         handleHover(enter, ri, ci, row, ceil) {
-            const { mergedConfig, emitEvent, stopAnimation, animation } = this
 
-            if (enter) emitEvent('mouseover', ri, ci, row, ceil)
-            if (!mergedConfig.hoverPause) return
+            if (enter) this.emitEvent('mouseover', ri, ci, row, ceil)
+            if (!this.mergedConfig.hoverPause) return
 
             if (enter) {
-                stopAnimation()
+                this.stopAnimation()
             } else {
-                animation(true)
+                this.animation(true)
             }
         },
         afterAutoResizeMixinInit() {
-            const { calcData } = this
-
-            calcData()
+            this.calcData()
         },
         onResize() {
-            const { mergedConfig, calcWidths, calcHeights } = this
 
-            if (!mergedConfig) return
+            if (!this.mergedConfig) return
 
-            calcWidths()
+            this.calcWidths()
 
-            calcHeights()
+            this.calcHeights()
         },
         calcData() {
 
-            const { mergeConfig, calcHeaderData, calcRowsData } = this
+            this.mergeConfig()
 
-            mergeConfig()
+            this.calcHeaderData()
 
-            calcHeaderData()
+            this.calcRowsData()
 
-            calcRowsData()
+            this.calcWidths()
 
-            const { calcWidths, calcHeights, calcAligns } = this
+            this.calcHeights()
 
-            calcWidths()
-
-            calcHeights()
-
-            calcAligns()
-
-            const { animation } = this
-
-            animation(true)
+            this.animation(true)
         },
         mergeConfig() {
-            let { config, defaultConfig } = this
-
-            this.mergedConfig = deepMerge(deepClone(defaultConfig, true), config || {})
+            this.mergedConfig = deepMerge(deepClone(this.defaultConfig,new WeakMap()), this.config || {})
         },
         calcHeaderData() {
             let { header, index, indexHeader } = this.mergedConfig
@@ -244,15 +227,15 @@ export default {
         },
         calcRowsData() {
             let { data, index, headerBGC, rowNum } = this.mergedConfig
-
+            
             if (index) {
                 data = data.map((row, i) => {
                     row = [...row]
-
+                
                     const indexTag = `<span class="index" style="background-color: ${headerBGC};">${i + 1}</span>`
 
                     row.unshift(indexTag)
-
+                  
                     return row
                 })
             }
@@ -260,13 +243,12 @@ export default {
             data = data.map((ceils, i) => ({ ceils, rowIndex: i }))
 
             const rowLength = data.length
-
+            // 数据长度大于设定的一页但是小于两页时，数据翻倍
             if (rowLength > rowNum && rowLength < 2 * rowNum) {
                 data = [...data, ...data]
             }
 
             data = data.map((d, i) => ({ ...d, scroll: i }))
-
             this.rowsData = data
             this.rows = data
         },
@@ -289,15 +271,16 @@ export default {
             const widths = new Array(columnNum).fill(avgWidth)
 
             this.widths = deepMerge(widths, columnWidth)
+            
         },
+        // 每一行的高度，去掉是否配置的heander高度
         calcHeights(onresize = false) {
-            const { height, mergedConfig, header } = this
+          
+            const { headerHeight, rowNum, data } = this.mergedConfig
 
-            const { headerHeight, rowNum, data } = mergedConfig
+            let allHeight = this.height
 
-            let allHeight = height
-
-            if (header.length) allHeight -= headerHeight
+            if (this.header.length) allHeight -= headerHeight
 
             const avgHeight = allHeight / rowNum
 
@@ -305,68 +288,83 @@ export default {
 
             if (!onresize) this.heights = new Array(data.length).fill(avgHeight)
         },
-        calcAligns() {
-            const { header, mergedConfig } = this
-
-            const columnNum = header.length
-
-            let aligns = new Array(columnNum).fill('left')
-
-            const { align } = mergedConfig
-
-            this.aligns = deepMerge(aligns, align)
-        },
         async animation(start = false) {
-            const { needCalc, calcHeights, calcRowsData } = this
-
-            if (needCalc) {
-                calcRowsData()
-                calcHeights()
+        
+            if (this.needCalc) {
+                this.calcRowsData()
+                this.calcHeights()
                 this.needCalc = false
             }
 
-            let { avgHeight, animationIndex, mergedConfig, rowsData, animation, updater } = this
+            const { waitTime, carousel, rowNum, direction } = this.mergedConfig
 
-            const { waitTime, carousel, rowNum } = mergedConfig
-
-            const rowLength = rowsData.length
-
+            const rowLength = this.rowsData.length
+            // 数据长度小于设定的一页时，不需要动画
             if (rowNum >= rowLength) return
-
+      
             if (start) {
                 await new Promise(resolve => setTimeout(resolve, waitTime))
-                if (updater !== this.updater) return
+                if (this.updater !== this.updater) return
             }
-
+            // 动画轮播数量单个或者页面
             const animationNum = carousel === 'single' ? 1 : rowNum
+            // 向上滚动or向下滚动
+            if(direction == 'up'){
+                // 数据递减
+                let rows = this.rowsData.slice(this.animationIndex)
+                // 去除的数据补充到尾部
+                rows.push(...this.rowsData.slice(0, this.animationIndex))
+                
+                this.rows = rows.slice(0, carousel === 'page' ? rowNum * 2 : rowNum + 1)
+                this.heights = new Array(rowLength).fill(this.avgHeight)
 
-            let rows = rowsData.slice(animationIndex)
-            rows.push(...rowsData.slice(0, animationIndex))
+                await new Promise(resolve => setTimeout(resolve, 100))
+                if (this.updater !== this.updater) return
 
-            this.rows = rows.slice(0, carousel === 'page' ? rowNum * 2 : rowNum + 1)
-            this.heights = new Array(rowLength).fill(avgHeight)
+                this.heights.splice(0, animationNum, ...new Array(animationNum).fill(0))
 
-            await new Promise(resolve => setTimeout(resolve, 300))
-            if (updater !== this.updater) return
+                this.animationIndex += animationNum
+                
+                const back = this.animationIndex - rowLength
+                if (back >= 0) {
+                    this.animationIndex = back
+                }
 
-            this.heights.splice(0, animationNum, ...new Array(animationNum).fill(0))
+                this.animationIndex = this.animationIndex
+                this.animationHandler = setTimeout(this.animation, waitTime - 300);
+            } else {
+                // [1,2,3,4,5,6,7,8,9,10]
+                // 数据递减
+                let rows = this.rowsData.slice(0,rowLength - this.animationIndex)
+                // 去除的数据补充到尾部
+                rows.unshift(...this.rowsData.slice(rowLength - this.animationIndex,rowLength))
+                
+                this.rows = rows.slice(0, carousel === 'page' ? rowNum * 2 : rowNum + 1)
+                this.heights = new Array(rowLength).fill(this.avgHeight)
 
-            animationIndex += animationNum
+                await new Promise(resolve => setTimeout(resolve, 100))
+                if (this.updater !== this.updater) return
 
-            const back = animationIndex - rowLength
-            if (back >= 0) animationIndex = back
+                this.heights.splice(0, animationNum, ...new Array(animationNum).fill(0))
 
-            this.animationIndex = animationIndex
-            this.animationHandler = setTimeout(animation, waitTime - 300)
+                this.animationIndex += animationNum
+                
+                const back = this.animationIndex - rowLength
+                if (back >= 0) {
+                    this.animationIndex = back
+                }
+
+                this.animationIndex = this.animationIndex
+                this.animationHandler = setTimeout(this.animation, waitTime - 300);
+            }
         },
         stopAnimation() {
-            const { animationHandler, updater } = this
+      
+            this.updater = this.updater + 1;
 
-            this.updater = (updater + 1) % 999999
+            if (!this.animationHandler) return
 
-            if (!animationHandler) return
-
-            clearTimeout(animationHandler)
+            clearTimeout(this.animationHandler)
         },
         emitEvent(type, ri, ci, row, ceil) {
             const { ceils, rowIndex } = row
@@ -424,19 +422,17 @@ export default {
             div {
                 transition: all 0.3s;
             }
-
             transition: all 0.3s;
         }
     }
 
     .rows {
         overflow: hidden;
-
         .row-item {
             display: flex;
             font-size: 14px;
             transition: all 0.3s;
-
+            
             div {
                 transition: all 0.3s;
             }

@@ -19,6 +19,7 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
+  
   if (hasToken) {
     if (to.path === '/login' || to.path === '/') {
       // if is logged in, redirect to the home page

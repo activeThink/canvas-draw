@@ -15,22 +15,19 @@ export default {
   },
   methods: {
     async autoResizeMixinInit () {
-      const { initWH, getDebounceInitWHFun, bindDomResizeCallback, afterAutoResizeMixinInit } = this
 
-      await initWH(false)
+      await this.initWH(false)
 
-      getDebounceInitWHFun()
+      this.getDebounceInitWHFun()
 
-      bindDomResizeCallback()
+      this.bindDomResizeCallback()
 
-      if (typeof afterAutoResizeMixinInit === 'function') afterAutoResizeMixinInit()
+      if (typeof this.afterAutoResizeMixinInit === 'function') this.afterAutoResizeMixinInit()
     },
     initWH (resize = true) {
-      const { $nextTick, $refs, ref, onResize } = this
-
       return new Promise(resolve => {
-        $nextTick(_ => {
-          const dom = this.dom = $refs[ref]
+        this.$nextTick(_ => {
+          const dom = this.dom = this.$refs[this.ref]
 
           this.width = dom ? dom.clientWidth : 0
           this.height = dom ? dom.clientHeight : 0
@@ -41,44 +38,37 @@ export default {
             console.warn('DataV: Component width or height is 0px, rendering abnormality may occur!')
           }
 
-          if (typeof onResize === 'function' && resize) onResize()
+          if (typeof this.onResize === 'function' && resize) this.onResize()
 
           resolve()
         })
       })
     },
     getDebounceInitWHFun () {
-      const { initWH } = this
-
-      this.debounceInitWHFun = debounce(100, initWH)
+      this.debounceInitWHFun = debounce(100, this.initWH)
     },
     bindDomResizeCallback () {
-      const { dom, debounceInitWHFun } = this
+      this.domObserver = observerDomResize(this.dom, this.debounceInitWHFun)
 
-      this.domObserver = observerDomResize(dom, debounceInitWHFun)
-
-      window.addEventListener('resize', debounceInitWHFun)
+      window.addEventListener('resize', this.debounceInitWHFun)
     },
     unbindDomResizeCallback () {
-      let { domObserver, debounceInitWHFun } = this
 
-      if (!domObserver) return
 
-      domObserver.disconnect()
-      domObserver.takeRecords()
-      domObserver = null
+      if (!this.domObserver) return
 
-      window.removeEventListener('resize', debounceInitWHFun)
+      this.domObserver.disconnect()
+      this.domObserver.takeRecords()
+      this.domObserver = null
+
+      window.removeEventListener('resize', this.debounceInitWHFun)
     }
   },
   mounted () {
-    const { autoResizeMixinInit } = this
 
-    autoResizeMixinInit()
+    this.autoResizeMixinInit()
   },
   beforeDestroy () {
-    const { unbindDomResizeCallback } = this
-
-    unbindDomResizeCallback()
+    this.unbindDomResizeCallback()
   }
 }
