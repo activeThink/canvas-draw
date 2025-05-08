@@ -16,6 +16,7 @@
             <el-col :span="12">
                 <div id="canvas-parent"></div>
                 <img :src="canvasImage" alt="">
+                <img :src="partImage" alt="">
             </el-col>
         </el-row>
 
@@ -38,7 +39,8 @@ export default {
             renderCanvas: null,
             canvasImage: null,
             debounceAction: null,
-            cropperShade: null
+            cropperShade: null,
+            partImage:null
         }
     },
     created() {
@@ -85,7 +87,7 @@ export default {
                 `
             });
             this.cropper = cropper;
-            this.canvas = this.cropper.getCropperCanvas();
+            this.canvas = this.cropper.getCropperCanvas(); 
             this.image = this.cropper.getCropperImage();
             this.selection = this.cropper.getCropperSelection();
             this.selections = this.cropper.getCropperSelections();
@@ -121,6 +123,12 @@ export default {
             this.canvasImage = canvas.toDataURL();
             document.getElementById('canvas-parent').innerHTML = null;
             document.getElementById('canvas-parent').appendChild(canvas);
+
+            // 获取截取的图片
+            let partImgCanvas = await this.selection.$toCanvas();
+            let partImg = partImgCanvas.toDataURL();
+            this.partImage = partImg;
+            
         },
         shadeChange() {
             let cropperShade = document.querySelector('cropper-shade');
