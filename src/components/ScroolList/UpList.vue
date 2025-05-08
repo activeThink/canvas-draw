@@ -76,6 +76,7 @@ export default {
     position: relative;
     border: 1px solid #ebedf0;
     border-radius: 4px;
+    background: #02384C; 
 }
 
 .scroll-list {

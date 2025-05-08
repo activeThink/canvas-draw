@@ -57,7 +57,7 @@ export const constantRoutes = [
         title: '画板',
         icon: 'el-icon-s-home'
       },
-      component: () => import('@/views/canvas/index')
+      component: () => import('@/views/system/canvas/index')
     },
     {
       path: '/system/scrollBoard',
@@ -66,7 +66,7 @@ export const constantRoutes = [
         title: '滚动表格',
         icon: 'el-icon-s-home'
       },
-      component: () => import('@/views/scrollBoard/index')
+      component: () => import('@/views/system/scrollBoard/index')
     }, {
       path: '/system/scrollList',
       name: 'scrollList',
@@ -74,7 +74,7 @@ export const constantRoutes = [
         title: '滚动列表',
         icon: 'el-icon-s-home'
       },
-      component: () => import('@/views/scroolList/index')
+      component: () => import('@/views/system/scroolList/index')
     }]
   },
   {

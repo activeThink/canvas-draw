@@ -50,7 +50,7 @@ export default {
     overflow: hidden;
     position: relative;
     border-radius: 4px;
-
+    background: #02384C; 
     .scroll-list {
         padding: 0;
         margin: 0;
