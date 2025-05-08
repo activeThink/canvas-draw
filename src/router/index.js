@@ -75,6 +75,15 @@ export const constantRoutes = [
         icon: 'el-icon-s-home'
       },
       component: () => import('@/views/system/scroolList/index')
+    },
+    {
+      path: '/system/virtualScroll',
+      name: 'virtualScroll',
+      meta: {
+        title: '虚拟滚动',
+        icon: 'el-icon-s-home'
+      },
+      component: () => import('@/views/system/virtualScroll/index')
     }]
   },
   {
