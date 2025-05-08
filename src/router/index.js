@@ -84,6 +84,15 @@ export const constantRoutes = [
         icon: 'el-icon-s-home'
       },
       component: () => import('@/views/system/virtualScroll/index')
+    },
+    {
+      path: '/system/cropperjs',
+      name: 'cropperjs',
+      meta: {
+        title: '图片裁剪',
+        icon: 'el-icon-s-home'
+      },
+      component: () => import('@/views/system/cropperjs/index')
     }]
   },
   {
