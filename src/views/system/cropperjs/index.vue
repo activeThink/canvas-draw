@@ -40,7 +40,7 @@ export default {
             canvasImage: null,
             debounceAction: null,
             cropperShade: null,
-            partImage:null
+            partImage: null
         }
     },
     created() {
@@ -87,7 +87,7 @@ export default {
                 `
             });
             this.cropper = cropper;
-            this.canvas = this.cropper.getCropperCanvas(); 
+            this.canvas = this.cropper.getCropperCanvas();
             this.image = this.cropper.getCropperImage();
             this.selection = this.cropper.getCropperSelection();
             this.selections = this.cropper.getCropperSelections();
@@ -126,9 +126,10 @@ export default {
 
             // 获取截取的图片
             let partImgCanvas = await this.selection.$toCanvas();
+            console.log(partImgCanvas);
             let partImg = partImgCanvas.toDataURL();
             this.partImage = partImg;
-            
+
         },
         shadeChange() {
             let cropperShade = document.querySelector('cropper-shade');

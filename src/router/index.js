@@ -93,6 +93,15 @@ export const constantRoutes = [
         icon: 'el-icon-s-home'
       },
       component: () => import('@/views/system/cropperjs/index')
+    },
+    {
+      path: '/system/wangEditor',
+      name: 'wangEditor',
+      meta: {
+        title: 'wangEditor编辑器',
+        icon: 'el-icon-s-home'
+      },
+      component: () => import('@/views/system/wangEditor/index')
     }]
   },
   {
